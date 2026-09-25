@@ -2,8 +2,9 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import argparse
-
-
+from prompts import system_prompt
+from call_function import available_functions, call_function
+import json
 
 def main():
     load_dotenv()
@@ -19,12 +20,14 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
     args = parser.parse_args()
     messages = [
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": args.user_prompt},
     ]
     print("Hello from ai-agent!")
     response = client.chat.completions.create(
-        model="meta-llama/llama-3.1-8b-instruct:nitro",
+        model="openrouter/free",
         messages=messages,
+        tools=available_functions,
     )
     usage = response.usage
     if args.verbose:
@@ -36,9 +39,16 @@ def main():
             print(f"Response tokens: {completion_tokens}")
         else: 
             raise RuntimeError("usage is empty")
-    print(response.choices[0].message.content)
-
-
+    message = response.choices[0].message
+    if message.tool_calls:
+        for tool_call in message.tool_calls:
+            result_message = call_function(tool_call, args.verbose)
+            if result_message.get("content") == "":
+                raise Exception("content is null")
+            if args.verbose:
+                print(f"-> {result_message['content']}")
+    else:
+        print(message.content)
 
 if __name__ == "__main__":
     main()

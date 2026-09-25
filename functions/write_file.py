@@ -21,3 +21,26 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
 
     except Exception as e:
         return f"Error: Something went wrong: {e}"
+
+
+schema_write_file = {
+    "type": "function",
+    "function": {
+        "name": "write_file",
+        "description": "Writes and/or overwrites files in a specified directory relative to the working directory.",
+        "parameters": {
+            "type": "object",
+            "required": ["file_path","content"],
+            "properties": {
+                "file_path": {
+                    "type": "string",
+                    "description": "Directory path to the file to write/overwrite, relative to the working directory",
+                },
+                "content": {
+                    "type": "string",
+                    "description": "The content to write into the file",
+                },
+            },
+        },
+    },
+}
