@@ -1,0 +1,1 @@
+[![Boot.dev Build a BookBot in Python certificate](https://qvault-webapp-dynamic-assets.storage.googleapis.com/certificates/7db349bd-a9c3-406e-8d14-8dfe1cd341c0.jpeg?v=1778033986)](https://www.boot.dev/certificates/7db349bd-a9c3-406e-8d14-8dfe1cd341c0)
