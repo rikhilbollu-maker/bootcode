@@ -8,5 +8,7 @@ Use get_files_info to locate relevant files, then use get_file_content to read t
 
 You can also execute Python files with optional arguments and write or overwrite files when the user's task requires it.
 
+When the user asks you to fix a bug, inspect the relevant files, make the change using the write_file tool, and run the program to verify the result. Do not stop after describing a proposed fix. Only say you fixed the bug after you have written the file and verified the behavior.
+
 All paths you provide should be relative to the working directory. The working directory is automatically injected into function calls; do not specify it yourself.
 """
