@@ -5,6 +5,7 @@ import argparse
 from prompts import system_prompt
 from call_function import available_functions, call_function
 import json
+import sys
 
 def main():
     load_dotenv()
@@ -24,31 +25,38 @@ def main():
         {"role": "user", "content": args.user_prompt},
     ]
     print("Hello from ai-agent!")
-    response = client.chat.completions.create(
-        model="openrouter/free",
-        messages=messages,
-        tools=available_functions,
-    )
-    usage = response.usage
-    if args.verbose:
-        print(f"User prompt: {args.user_prompt}")
-        if usage is not None:
-            prompt_tokens  = usage.prompt_tokens
-            print(f"Prompt tokens: {prompt_tokens}")
-            completion_tokens = usage.completion_tokens
-            print(f"Response tokens: {completion_tokens}")
-        else: 
-            raise RuntimeError("usage is empty")
-    message = response.choices[0].message
-    if message.tool_calls:
-        for tool_call in message.tool_calls:
-            result_message = call_function(tool_call, args.verbose)
-            if result_message.get("content") == "":
-                raise Exception("content is null")
-            if args.verbose:
-                print(f"-> {result_message['content']}")
-    else:
-        print(message.content)
+
+    for _ in range(20):
+        response = client.chat.completions.create(
+            model="openai/gpt-4o-mini",
+            messages=messages,
+            tools=available_functions,
+        )
+        usage = response.usage
+        if args.verbose:
+            print(f"User prompt: {args.user_prompt}")
+            if usage is not None:
+                prompt_tokens  = usage.prompt_tokens
+                print(f"Prompt tokens: {prompt_tokens}")
+                completion_tokens = usage.completion_tokens
+                print(f"Response tokens: {completion_tokens}")
+            else: 
+                raise RuntimeError("usage is empty")
+        message = response.choices[0].message
+        messages.append(message)
+        if message.tool_calls:
+            for tool_call in message.tool_calls:
+                result_message = call_function(tool_call, args.verbose)
+                if result_message.get("content") == "":
+                    raise Exception("content is null")
+                if args.verbose:
+                    print(f"-> {result_message['content']}")
+                messages.append(result_message)
+        else:
+            print(message.content)
+            return
+    print("The agent reached the 20-iteration limit without a final response")
+    sys.exit(1)
 
 if __name__ == "__main__":
     main()
